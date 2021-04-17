@@ -24,7 +24,7 @@ app.post('/process', function (req, res) {
     try{
         runScript(scriptPath , err => {
             if(err) console.log('Ошибка в scriptPath')
-            else console.log('Скриит успешно выпонен')
+            else console.log('Скрипт успешно выполнился')
         })     
         res.send("Скрипт выполнился")
     }
