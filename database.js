@@ -1,28 +1,10 @@
         
         
-        
-        // let thingsss = require('./handler')
-       
 
-    //     let ID = function () {  
-    //         return '_' + Math.random().toString(36).substr(2, 9);
-    //       };
-           
-    //     function des (name, url){ 
-    //             this.name=name
-    //             this.ID = ID()                  
-    //      } 
-    //   let ades=[]
-    //     ades.push(new des(things.qqq)) 
-        //return console.log(ades)
-      
 
        
       let thingssss = require('./script')
       module.exports.base = base
-
-
-      // const scriptPath = [ 'C:\\Users\\Артур\\все фаилы Node.js\\archive_file_new.js']
 
       function base () {       
         let ID = function () {  
