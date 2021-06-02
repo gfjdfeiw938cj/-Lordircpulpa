@@ -7,7 +7,7 @@ app.use(express.static(__dirname + "/public"));
 
 const scriptPathg = 'C:\\Users\\Артур\\все фаилы Node.js\\archive_file_new.js'
 
-const filePath = "111.json";
+const filePath = "dataBase.json";
  
   app.get("/process", function(req, res){
        
@@ -22,7 +22,7 @@ const filePath = "111.json";
     const content = fs.readFileSync(filePath, "utf8")
     const jsonDatabase = JSON.parse(content)
    
-   let arrEl =  jsonDatabase.find(el => el.id==id )  
+    let arrEl =  jsonDatabase.find(el => el.id==id )  
 
     if(arrEl){
         res.send(arrEl);
@@ -61,9 +61,9 @@ const filePath = "111.json";
       })
       res.send( req.body)
       }
-      catch(err){
-        console.log(' В Скрипте server допушена ошибка')
-        res.send(` В Скрипте server допушена ошибка `)
+    catch(err){
+      console.log(' В Скрипте server допушена ошибка')
+      res.send(` В Скрипте server допушена ошибка `)
     }
   });
   
