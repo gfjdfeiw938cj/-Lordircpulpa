@@ -7,7 +7,7 @@ app.use(express.static(__dirname + "/public"));
 
 const scriptPathg = 'C:\\Users\\Артур\\все фаилы Node.js\\archive_file_new.js'
 
-const filePath = "dataBase.json";
+const filePath = "111.json";
  
   app.get("/process", function(req, res){
        
@@ -30,7 +30,7 @@ const filePath = "dataBase.json";
     else{
         res.status(404).send();
     }
-});
+  });
 
   app.post('/process',jsonParser, function (req, res) {
     try{
@@ -44,9 +44,8 @@ const filePath = "dataBase.json";
       let jsonDatabase = JSON.parse(data)
      
       const id = Math.max.apply(Math,jsonDatabase.map(el => el.id))
-        
-      arrEl.id = id+1;
-   
+      if(-Infinity == id){arrEl.id  = 0 }else{ arrEl.id = id+1}
+  
       jsonDatabase.push(arrEl)
 
       data = JSON.stringify(jsonDatabase)
