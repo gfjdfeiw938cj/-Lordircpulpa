@@ -4,54 +4,46 @@ const app = express()
 const jsonParser = express.json();
 const fs = require("fs");
 app.use(express.static(__dirname + "/public"));
-
-const scriptPathg = 'C:\\Users\\Артур\\все фаилы Node.js\\archive_file_new.js'
+const pros = require("child_process")
 
 const filePath = "dataBase.json";
  
   app.get("/process", function(req, res){
        
-    const content = fs.readFileSync(filePath,"utf8");
-    const jsonDatabase = JSON.parse(content);
-    res.send(jsonDatabase);
-    });
+      const content = fs.readFileSync(filePath,"utf8");
+      const jsonDatabase = JSON.parse(content);
+      res.send(jsonDatabase)
+      })
 
-  app.get("/process/:id", function(req, res){
+  app.get("/process/:pid", function(req, res){
        
-    const id = req.params.id
-    const content = fs.readFileSync(filePath, "utf8")
-    const jsonDatabase = JSON.parse(content)
+      const pid = req.params.pid
+      const content = fs.readFileSync(filePath, "utf8")
+      const jsonDatabase = JSON.parse(content)
    
-    let arrEl =  jsonDatabase.find(el => el.id==id )  
+      let arrEl =  jsonDatabase.find(el => el.pid==pid )  
 
-    if(arrEl){
-        res.send(arrEl);
-    }
-    else{
-        res.status(404).send();
-    }
-  });
+        if(arrEl){ res.send(arrEl) }else{res.status(404).send()}})
 
   app.post('/process',jsonParser, function (req, res) {
-    try{
-      req.body.name = 'archive_file_new'
-      req.body.script = scriptPathg
-      console.log(req.body)
     
-      let arrEl = {name: req.body.name ,script: req.body.script}
+      const nameScript = req.body.name 
+      const pathFile = req.body.script 
+      
+      let arrEl = {name:nameScript ,script:pathFile}
       
       let data = fs.readFileSync(filePath, "utf8")
       let jsonDatabase = JSON.parse(data)
      
-      const id = Math.max.apply(Math,jsonDatabase.map(el => el.id))
-      if(-Infinity == id){arrEl.id  = 0 }else{ arrEl.id = id+1}
-  
-      jsonDatabase.push(arrEl)
+      let indexerPid = pros.fork(pathFile)
+      
+      arrEl.pid = indexerPid.pid
 
-      data = JSON.stringify(jsonDatabase)
+      jsonDatabase.push(arrEl)
+       console.log(arrEl)
+      data = JSON.stringify(jsonDatabase,null, 2)
       fs.writeFileSync(filePath, data)
 
-      const process = require("child_process").fork(req.body.script)
       process.on('error', err => {
         if(err)console.log(` В Скрипте Task1 допушена ошибка ${err}`)
         else console.log('Скрипт успешно выполнился')
@@ -59,28 +51,32 @@ const filePath = "dataBase.json";
       process.on('Exit', code => {
         console.log(`код выхода: ${code}`)
       })
-      res.send( req.body)
-      }
-    catch(err){
-      console.log(' В Скрипте server допушена ошибка')
-      res.send(` В Скрипте server допушена ошибка `)
-    }
+
+      res.send( req.body) 
   });
   
-  app.put("/process/:id/:name/:script", jsonParser, function(req, res){
+  app.put("/process",jsonParser, function(req, res){
+       
+      const content = fs.readFileSync(filePath,"utf8");
+      const jsonDatabase = JSON.parse(content);
+      res.send(jsonDatabase)
+      })
+
+  app.put("/process/:pid", jsonParser, function(req, res){
    
-      const id = req.params.id;  
-      const name = req.params.name;
-      const script = req.params.script;
+      let pid = req.params.pid 
+      let script = req.body.script 
+      let name = req.body.name 
+      
       let data = fs.readFileSync(filePath, "utf8")
-      const jsonDatabase = JSON.parse(data)
+      let jsonDatabase = JSON.parse(data)
     
-      let arrEl =  jsonDatabase.find(el => el.id == id)
-    
+      let arrEl = jsonDatabase.find(el => el.pid == pid)
+       console.log(arrEl)
       if(arrEl){
         arrEl.name = name;
         arrEl.script = script;
-        data = JSON.stringify(jsonDatabase);
+        data = JSON.stringify(jsonDatabase,null, 2);
         fs.writeFileSync(filePath, data);
         res.send(jsonDatabase);
         }
@@ -89,18 +85,21 @@ const filePath = "dataBase.json";
       }
   });
 
-  app.delete("/process/:id", function(req, res){
-       
-      const id = req.params.id;
+  app.delete("/process/:pid", function(req, res){
+      const pid = req.params.pid;
       let data = fs.readFileSync(filePath, "utf8");
       let jsonDatabase = JSON.parse(data);
-      let index = jsonDatabase.indexOf(jsonDatabase.find(el => el.id==id))
+      let index = jsonDatabase.indexOf(jsonDatabase.find(el => el.pid==pid))
 
-    if(index > -1 ){
-        jsonDatabase.splice(index, 1)[0];
-        data = JSON.stringify(jsonDatabase);
-        fs.writeFileSync(filePath , data);
-        res.send(jsonDatabase)
+      if(index > -1 ){
+        jsonDatabase.splice(index, 1)[0]
+
+      data = JSON.stringify(jsonDatabase,null, 2);
+      fs.writeFileSync(filePath , data);
+      res.send(jsonDatabase)
+     
+      process.kill(pid)
+      
     }
     else{
       setTimeout(() => res.status(403).end('Процес был принудительно остановлен'), 1000);
@@ -108,5 +107,5 @@ const filePath = "dataBase.json";
   });
 
   app.listen(3000, function () {
-    console.log('Сервер был запушен !')
+      console.log('Сервер был запушен !')
   })
