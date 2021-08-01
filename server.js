@@ -6,9 +6,9 @@ let things2 = require('./script')
 const fs = require("fs");
 app.use(express.static(__dirname + "/public"));
 
-const scriptPath = [ 'C:\\Users\\Артур\\все фаилы Node.js\\archive_file_new.js']
+const scriptPathg = 'C:\\Users\\Артур\\все фаилы Node.js\\archive_file_new.js'
 
-const filePath = "obj3.json";
+const filePath = "111.json";
 
 let scriptFile = things2.task1
 
@@ -18,19 +18,22 @@ let scriptFile = things2.task1
     const jsonDatabase = JSON.parse(content);
     res.send(jsonDatabase);
     });
+
   app.get("/process/:id", function(req, res){
        
     const id = req.params.id
     const content = fs.readFileSync(filePath, "utf8")
     const jsonDatabase = JSON.parse(content)
-    let arrEl = null
+    // let arrEl = null
  
-    for(let i=0; i<jsonDatabase.length; i++){
-        if(jsonDatabase[i].id==id){
-            arrEl = jsonDatabase[i];
-            break;
-        }
-    }
+    // for(let i=0; i<jsonDatabase.length; i++){
+    //     if(jsonDatabase[i].id==id){
+    //         arrEl = jsonDatabase[i];
+    //         break;
+    //     }
+    // }
+   let arrEl =  jsonDatabase.find(el => el.id==id )  
+
     if(arrEl){
         res.send(arrEl);
     }
@@ -41,11 +44,13 @@ let scriptFile = things2.task1
 
   app.post('/process',jsonParser, function (req, res) {
     try{
-
-    const nameScript  = req.body.name = scriptFile.name  
-    const scriptPath = req.body.script = scriptFile
+    req.body.name = scriptFile.name
+    req.body.script = scriptPathg
+    console.log(req.body)
     
-    let arrEl = {name: nameScript ,script: scriptPath}
+    let arrEl = {name: req.body.name ,script: req.body.script}
+    console.log(req.body)
+
     let data = fs.readFileSync(filePath, "utf8")
     let jsonDatabase = JSON.parse(data)
 
@@ -60,43 +65,41 @@ let scriptFile = things2.task1
           return v.toString();
         return v;
     });
-
     fs.writeFileSync(filePath, data)
-   
-    scriptFile(scriptPath , err => {
-        if(err) console.log('Ошибка в scriptPath')
-        else console.log('Скрипт успешно выполнился')
-    })     
-        res.send(`Скрипт выполнился ${scriptFile.name}`)
 
+    const process = require("child_process").fork(req.body.script)
+    process.on('error', err => {
+        if(err)console.log(` В Скрипте Task1 допушена ошибка ${err}`)
+        else console.log('Скрипт успешно выполнился')
+    })
+    process.on('Exit', code => {
+        console.log(`код выхода: ${code}`)
+    })
+    res.send(`Скрипт успешно выполнился ${req.body}`)
     }
     catch(err){
-        console.log(' В Скрипте Task1 допушена ошибка')
-        res.send(` В Скрипте Task1 допушена ошибка `)
+        console.log(' В Скрипте server допушена ошибка')
+        res.send(` В Скрипте server допушена ошибка `)
     }
   });
   
   app.put("/process", jsonParser, function(req, res){
         
-    const scriptId = req.body.id = 5 // <= введите свой id
-    const scriptName = req.body.name = 'введите свои значение'
-    const script = req.body.script = 'введите свои значения'
+    req.body.id = 3 // <= введите свой id
+    req.body.name = 'dsadasdasdasdasdasdasdasdasdas'
+    req.body.script = scriptPathg 
         
     let data = fs.readFileSync(filePath, "utf8")
     const jsonDatabase = JSON.parse(data)
-    let arrEl
-    for(let i=0; i<jsonDatabase.length; i++){
-        if(jsonDatabase[i].id==scriptId){
-            arrEl = jsonDatabase[i];
-            break;
-        }
-    }
+    console.log(jsonDatabase)
+    let arrEl =  jsonDatabase.find(el => el.id == req.body.id)
+    
         if(arrEl){
-            arrEl.name  = scriptName;
-            arrEl.script = script;
+            arrEl.name  = req.body.name;
+            arrEl.script = req.body.script;
             data = JSON.stringify(jsonDatabase);
             fs.writeFileSync(filePath, data);
-            res.send(arrEl);
+            res.send(req.body);
         }
       else{
           res.status(404).send(arrEl);
@@ -108,26 +111,29 @@ let scriptFile = things2.task1
     const id = req.params.id;
     let data = fs.readFileSync(filePath, "utf8");
     let jsonDatabase = JSON.parse(data);
-    let index = -1;
-    // находим индекс пользователя в массиве
-    for(let i=0; i < jsonDatabase.length; i++){
-        if(jsonDatabase[i].id==id){
-            index=i;
-            break;
-        }
-    }
+    // let index = -1;
+    
+    // for(let i=0; i < jsonDatabase.length; i++){
+    //     if(jsonDatabase[i].id==id){
+    //         index=i;
+    //         break;
+    //     }
+    // }
+    let index = arr.indexOf(el => el.id == req.body.id)
+    // let index =  jsonDatabase.find(el => el.id==id )
+    console.log(index)
     if(index > -1){
         const arrEl = jsonDatabase.splice(index, 1)[0];
         data = JSON.stringify(jsonDatabase);
-        fs.writeFileSync("users.json", data);
-        res.send(arrEl);
+        fs.writeFileSync(filePath, data);
+        res.send(req.body);
     }
     else{
         res.status(404).send();
     }
 });
 
-  app.listen(3000, function () {
+  app.listen(4000, function () {
     console.log('Сервер был запушен !')
 })
 
